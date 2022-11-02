@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1667401921 source:c:\users\elvan\onedrive\햞ea de trabalho\projetoesculto\escultura\sculptor.cpp
+	<iostream>
+	"sculptor.h"
+
+1667405443 c:\users\elvan\onedrive\햞ea de trabalho\projetoesculto\escultura\sculptor.h
+	"voxel.h"
+
+1667401929 source:c:\users\elvan\onedrive\햞ea de trabalho\projetoesculto\escultura\main.cpp
+	<iostream>
+	"sculptor.h"
+
+1667401886 c:\users\elvan\onedrive\햞ea de trabalho\projetoesculto\escultura\voxel.h
+
