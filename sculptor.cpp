@@ -34,19 +34,20 @@ Sculptor::Sculptor(int _nx, int _ny, int _nz){
         }
     }
 }
+//destrutor da classe
 Sculptor::~Sculptor(){
     delete [] v[0][0];
     delete [] v[0];
     delete [] v;
 }
-
+//insere cor aos voxels
 void Sculptor::setColor(const float r, const float g, const float b, const float alpha){
     this -> r = r;
     this -> g = g;
     this -> b = b;
     this -> a = alpha;
 }
-
+//insere voxels
 void Sculptor::putVoxel(int x, int y, int z){
     this -> v[x][y][z].r = this -> r;
     this -> v[x][y][z].g = this -> g;
@@ -54,11 +55,11 @@ void Sculptor::putVoxel(int x, int y, int z){
     this -> v[x][y][z].a = this -> a;
     this -> v[x][y][z].show = true;
 }
-
+//retira voxels
 void Sculptor::cutVoxel(int x, int y, int z){
     this -> v[x][y][z].show = false;
 }
-
+//insere voxels no formato de um cubo
 void Sculptor::putBox(int x0, int x1, int y0, int y1, int z0, int z1){
     for(int i = x0;i<x1;i++){
         for(int j = y0;j<y1;j++){
@@ -68,7 +69,7 @@ void Sculptor::putBox(int x0, int x1, int y0, int y1, int z0, int z1){
         }
     }
 }
-
+//retira voxels no formato de uma caixa
 void Sculptor::cutBox(int x0, int x1, int y0, int y1, int z0, int z1){
     for(int i = x0;i<x1;i++){
         for(int j = y0;j<y1;j++){
@@ -79,6 +80,7 @@ void Sculptor::cutBox(int x0, int x1, int y0, int y1, int z0, int z1){
     }
 
 }
+//coloca voxels no formato de uma esfera
 void Sculptor::putSphere(int xcenter, int ycenter, int zcenter, int radius){
     int x1 = xcenter+radius;
     int y1 = ycenter+radius;
@@ -94,7 +96,7 @@ void Sculptor::putSphere(int xcenter, int ycenter, int zcenter, int radius){
         }
     }
 }
-
+//retira voxels no formato de uma esfera
 void Sculptor::cutSphere(int xcenter, int ycenter, int zcenter, int radius){
     int x1 = xcenter+radius;
     int y1 = ycenter+radius;
