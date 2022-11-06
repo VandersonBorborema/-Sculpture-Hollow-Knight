@@ -1,7 +1,10 @@
 #include <iostream>
+#include <cstdlib>
+#include <clocale>
 #include <cmath>
+#include <fstream>
 #include "sculptor.h"
-#include "voxel.h"
+
 
 Sculptor::Sculptor(int _nx, int _ny, int _nz){
     this -> nx = _nx;
@@ -10,16 +13,14 @@ Sculptor::Sculptor(int _nx, int _ny, int _nz){
     int i, j, k;
     r = g =b = a = 0.5;
     //alocação da matriz 3D
-    v =  new Voxel**[nx];
-    v[0] = new Voxel*[nx*ny];
-    v[0][0] = new Voxel[nx*ny*nz];
+    v = new Voxel**[nx];
+    for (int i = 0; i<nx; i++){
+        v[i] = new Voxel*[ny];
+        for (int j = 0; j<ny; j++) {
+            v[i][j] = new Voxel[nz];
+        }
+    }
 
-    for(i =1; i<nz; i++){
-        v[i] = v[i-1]+ny;
-    }
-    for(i =1; i<nz*ny; i++){
-        v[0][i] = v[0][i-1]+nx;
-    }
 
     //inicializadores
     for(i =0; i<nx; i++){
@@ -36,9 +37,13 @@ Sculptor::Sculptor(int _nx, int _ny, int _nz){
 }
 //destrutor da classe
 Sculptor::~Sculptor(){
-    delete [] v[0][0];
-    delete [] v[0];
-    delete [] v;
+    for (int i = 0; i<nx; i++){
+        for (int j = 0; j<ny; j++){
+            delete[] v[i][j];
+        }
+        delete[] v[i];
+    }
+    delete[] v;
 }
 //insere cor aos voxels
 void Sculptor::setColor(const float r, const float g, const float b, const float alpha){
@@ -63,7 +68,7 @@ void Sculptor::cutVoxel(int x, int y, int z){
 void Sculptor::putBox(int x0, int x1, int y0, int y1, int z0, int z1){
     for(int i = x0;i<x1;i++){
         for(int j = y0;j<y1;j++){
-            for(int k = z0; z0<x1; k++){
+            for(int k = z0; k<z1; k++){
                 this -> putVoxel(i, j, k);
             }
         }
@@ -73,8 +78,8 @@ void Sculptor::putBox(int x0, int x1, int y0, int y1, int z0, int z1){
 void Sculptor::cutBox(int x0, int x1, int y0, int y1, int z0, int z1){
     for(int i = x0;i<x1;i++){
         for(int j = y0;j<y1;j++){
-            for(int k = z0; z0<x1; k++){
-                this -> putVoxel(i, j, k);
+            for(int k = z0; k<z1; k++){
+                this -> cutVoxel(i, j, k);
             }
         }
     }
@@ -82,13 +87,9 @@ void Sculptor::cutBox(int x0, int x1, int y0, int y1, int z0, int z1){
 }
 //coloca voxels no formato de uma esfera
 void Sculptor::putSphere(int xcenter, int ycenter, int zcenter, int radius){
-    int x1 = xcenter+radius;
-    int y1 = ycenter+radius;
-    int z1 = zcenter+radius;
-
-    for(int i = xcenter;i<x1;i++){
-        for(int j = ycenter;j<y1;j++){
-            for(int k = zcenter; zcenter<z1; k++){
+    for(int i = 0;i<nx;i++){
+        for(int j = 0;j<ny;j++){
+            for(int k = 0; k<nz; k++){
                 if(pow(i - xcenter, 2) + pow(j - ycenter, 2) + pow(k - zcenter, 2)<=pow(radius, 2)){
                     this -> putVoxel(i, j, k);
                 }
@@ -98,13 +99,9 @@ void Sculptor::putSphere(int xcenter, int ycenter, int zcenter, int radius){
 }
 //retira voxels no formato de uma esfera
 void Sculptor::cutSphere(int xcenter, int ycenter, int zcenter, int radius){
-    int x1 = xcenter+radius;
-    int y1 = ycenter+radius;
-    int z1 = zcenter+radius;
-
-    for(int i = xcenter;i<x1;i++){
-        for(int j = ycenter;j<y1;j++){
-            for(int k = zcenter; zcenter<z1; k++){
+    for(int i = 0;i<nx;i++){
+        for(int j = 0;j<ny;j++){
+            for(int k = 0; k<nz; k++){
                 if(pow(i - xcenter, 2) + pow(j - ycenter, 2) + pow(k - zcenter, 2)<=pow(radius, 2)){
                     this -> cutVoxel(i, j, k);
                 }
@@ -116,17 +113,10 @@ void Sculptor::cutSphere(int xcenter, int ycenter, int zcenter, int radius){
 
 //coloca voxels em forma de elipse
 void Sculptor::putEllipsoid(int xcenter, int ycenter, int zcenter, int rx, int ry, int rz){
-    int x0 = xcenter - rx;
-    int x1 = xcenter + rx;
-    int y0 = ycenter - ry;
-    int y1 = ycenter + ry;
-    int z0 = zcenter - rz;
-    int z1 = zcenter + rz;
-
-    for(int i = x0;i<x1;i++){
-        for(int j = y0;j<y1;j++){
-            for(int k = z0; z0<z1; k++){
-                if(pow(i - xcenter, 2)/ pow(rx,2) + pow(j - ycenter, 2)/ pow(ry,2) + pow(k - zcenter, 2)/ pow(rz,2)<=1){
+    for(int i = 0;i<nx;i++){
+        for(int j = 0;j<ny;j++){
+            for(int k = 0; k<nz; k++){
+                if(pow(i - xcenter, 2)/ pow(rx,2) + pow(j - ycenter, 2)/ pow(ry,2) + pow(k - zcenter, 2)/ pow(rz,2)<+1){
                     this -> putVoxel(i, j, k);
                 }
             }
@@ -135,22 +125,83 @@ void Sculptor::putEllipsoid(int xcenter, int ycenter, int zcenter, int rx, int r
 }
 //Retira voxels em uma elipse
 void Sculptor::cutEllipsoid(int xcenter, int ycenter, int zcenter, int rx, int ry, int rz){
-    int x0 = xcenter - rx;
-    int x1 = xcenter + rx;
-    int y0 = ycenter - ry;
-    int y1 = ycenter + ry;
-    int z0 = zcenter - rz;
-    int z1 = zcenter + rz;
-
-    for(int i = x0;i<x1;i++){
-        for(int j = y0;j<y1;j++){
-            for(int k = z0; z0<z1; k++){
-                if(pow(i - xcenter, 2)/ pow(rx,2) + pow(j - ycenter, 2)/ pow(ry,2) + pow(k - zcenter, 2)<1){
+    for(int i = 0;i<nx;i++){
+        for(int j = 0;j<ny;j++){
+            for(int k = 0; k<nz; k++){
+                if(pow(i - xcenter, 2)/ pow(rx,2) + pow(j - ycenter, 2)/ pow(ry,2) + pow(k - zcenter, 2)/ pow(rz,2)<=1){
                     this -> cutVoxel(i, j, k);
                 }
             }
         }
     }
 }
+
+void Sculptor::writeOFF(const char* filename){
+    int i, k, j;
+    setlocale(LC_ALL, "Portuguese");
+
+    int nvo = 0, nve = 0; //Número de voxels e número de vértices, respectivamente
+    std::ofstream fout;//Cria o objeto para o fluxo de sa[ida
+    fout.open(filename);//Abre o fluxo
+    if(!fout.is_open()){
+        std::cout << "Não foi possicel abrir o arquivo.\n";
+        std::exit(1);//precida da cstdlib
+    }
+    fout << "OFF" << std::endl;
+    //conta o número de voxels existentes
+    for(i =0; i<nx; i++){
+        for(j = 0; j<ny; j++){
+            for(k = 0;k<nz; k++){
+                if(v[i][j][k].show==true){
+                    nvo = nvo + 1;
+                }
+            }
+        }
+    }
+    //define o número de vértices e faces
+    fout <<nvo*8<<" "<<nvo*6<<" "<<0<<std::endl;
+
+    //define a posição dos vértices de cada voxel, usando como padrão o que foi defino pelo professor
+    for(i =0; i<nx; i++){
+        for(j = 0; j<ny; j++){
+            for(k = 0;k<nz; k++){
+                if(v[i][j][k].show==true){
+                    fout << i-0.5 << " " << j+0.5 << " "<<k-0.5<<std::endl;
+                    fout << i-0.5 << " " << j-0.5 << " "<<k-0.5<<std::endl;
+                    fout << i+0.5 << " " << j-0.5 << " "<<k-0.5<<std::endl;
+                    fout << i+0.5 << " " << j+0.5 << " "<<k-0.5<<std::endl;
+                    fout << i-0.5 << " " << j+0.5 << " "<<k+0.5<<std::endl;
+                    fout << i-0.5 << " " << j-0.5 << " "<<k+0.5<<std::endl;
+                    fout << i+0.5 << " " << j-0.5 << " "<<k+0.5<<std::endl;
+                    fout << i+0.5 << " " << j+0.5 << " "<<k+0.5<<std::endl;
+                }
+            }
+        }
+    }
+
+    nvo =0;
+    //Define as faces do voxel, usando como padrão o que foi defino pelo professor
+    for(i =0; i<nx; i++){
+        for(j = 0; j<ny; j++){
+            for(k = 0;k<nz; k++){
+                if(v[i][j][k].show==true){
+                    nve = nvo*8;
+
+                    fout << "4 "<< nve+0 << " "<< nve+3 << " " << nve+2 << " "<< nve + 1 << " "<< v[i][j][k].r << " " << v[i][j][k].g << " "<< v[i][j][k].b << " " << v[i][j][k].a<<std::endl;
+                    fout << "4 "<< nve+4 << " "<< nve+5 << " " << nve+6 << " "<< nve + 7 << " "<<v[i][j][k].r << " " << v[i][j][k].g << " "<< v[i][j][k].b << " " << v[i][j][k].a<<std::endl;
+                    fout << "4 "<< nve+0 << " "<< nve+1 << " " << nve+5 << " "<< nve + 4 << " "<<v[i][j][k].r << " " << v[i][j][k].g << " "<< v[i][j][k].b << " " << v[i][j][k].a<<std::endl;
+                    fout << "4 "<< nve+0 << " "<< nve+4 << " " << nve+7 << " "<< nve + 3 << " "<<v[i][j][k].r << " " << v[i][j][k].g << " "<< v[i][j][k].b << " " << v[i][j][k].a<<std::endl;
+                    fout << "4 "<< nve+3 << " "<< nve+7 << " " << nve+6 << " "<< nve + 2 << " "<<v[i][j][k].r << " " << v[i][j][k].g << " "<< v[i][j][k].b << " " << v[i][j][k].a<<std::endl;
+                    fout << "4 "<< nve+1 << " "<< nve+2 << " " << nve+6 << " "<< nve + 5 << " "<<v[i][j][k].r << " " << v[i][j][k].g << " "<< v[i][j][k].b << " " << v[i][j][k].a<<std::endl;
+
+                    nvo = nvo+1;
+                }
+            }
+        }
+    }
+    fout.close();
+
+}
+
 
 
