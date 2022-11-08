@@ -3,6 +3,17 @@
 
 int main()
 {
+   Sculptor teste(61, 61, 61);
+
+   teste.setColor(255, 255, 255, 1);
+   teste.putBox(0, 15, 0, 15, 0 ,15);
+   teste.putSphere(32, 32, 32, 6);
+   teste.putEllipsoid(52, 32, 32, 6, 7, 9);
+
+   teste.writeOFF("C:/Users/elvan/OneDrive/Área de Trabalho/ProjetoEsculto/teste.off");
+
+
+
    Sculptor hollow(61, 101, 61);
 
    hollow.setColor(255, 255, 255, 1);
@@ -31,5 +42,5 @@ int main()
 
    hollow.writeOFF("C:/Users/elvan/OneDrive/Área de Trabalho/ProjetoEsculto/hollowKnight.off");
 
-    return 0;
+   return 0;
 }
